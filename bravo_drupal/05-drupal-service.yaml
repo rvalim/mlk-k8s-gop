@@ -1,0 +1,15 @@
+# k expose deploy drupal --type NodePort --port 80 --name drupal-service --dry-run=client -oyaml > drupal-service.yaml
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: drupal-service
+spec:
+  selector:
+    app: drupal
+  type: NodePort
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+      nodePort: 30095      # add this

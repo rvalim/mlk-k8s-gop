@@ -1,0 +1,47 @@
+# k create deploy drupal --image drupal:8.6 --replicas 1 --dry-run=client -oyaml > drypal.yaml
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: drupal
+  labels:
+    app: drupal
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: drupal
+  template:
+    metadata:
+      labels:
+        name: drupal
+    spec:
+      volumes:                      #add this
+      - name: drupal-pv-storage
+        persistentVolumeClaim:
+          claimName: drupal-pvc
+      initContainers:               #add this
+      - name: init-sites-volume
+        image: 'drupal:8.6'
+        volumeMounts:
+        - mountPath: "/data"
+          name: drupal-pv-storage
+        command: ["/bin/bash", "-c" ]
+        args: ["cp -r /var/www/html/sites/ /data/; chown www-data:www-data /data/ -R"]
+      containers:
+      - name: drupal
+        image: 'drupal:8.6'
+        volumeMounts:               #add this
+        - mountPath: "/var/www/html/modules"
+          subPath: modules
+          name: drupal-pv-storage
+        - mountPath: "/var/www/html/profiles"
+          subPath: profiles
+          name: drupal-pv-storage
+        - mountPath: "/var/www/html/sites"
+          subPath: sites
+          name: drupal-pv-storage
+        - mountPath: "/var/www/html/themes"
+          subPath: themes
+          name: drupal-pv-storage
+        

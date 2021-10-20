@@ -1,0 +1,14 @@
+# k expose deploy iron-gallery --name iron-gallery-service --port 80 --type NodePort --dry-run=client -oyaml > 04-iron-gallery-service.yaml
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: iron-gallery-service
+spec:
+  type: NodePort
+  selector:
+    run: iron-gallery
+  ports:
+    - port: 80
+      targetPort: 80
+      nodePort: 30099      # add this

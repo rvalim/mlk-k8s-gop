@@ -1,0 +1,21 @@
+# k expose pod jekyll -n development --name jekyll --type NodePort --port 8080 --target-port 4000 --dry-run=client -oyaml > svcjekyll-node-service.yaml
+
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  labels:
+    run: jekyll
+  name: jekyll
+  namespace: development      # insert this one
+spec:
+  ports:
+  - port: 8080
+    protocol: TCP
+    targetPort: 4000
+    nodePort: 30097           # insert this one
+  selector:
+    run: jekyll
+  type: NodePort
+status:
+  loadBalancer: {}

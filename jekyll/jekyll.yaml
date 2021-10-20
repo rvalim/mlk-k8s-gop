@@ -1,0 +1,33 @@
+# k run jekyll --image kodekloud/jekyll -n development
+
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: null
+  labels:
+    run: jekyll
+  name: jekyll
+  namespace: development
+spec:
+  initContainers:                           # add this
+  - image: kodekloud/jekyll
+    name: copy-jekyll-site
+    resources: {}
+    command: [ "jekyll", "new", "/site" ]
+
+    volumeMounts:
+    - name: site
+      mountPath: /site
+  containers:
+  - name: jekyll
+    image: kodekloud/jekyll-serve
+    volumeMounts:                           # add this
+    - name: site
+      mountPath: /site
+  volumes:                                  # add this
+    - name: site
+      persistentVolumeClaim:
+        claimName: jekyll-site
+  dnsPolicy: ClusterFirst
+  restartPolicy: Always
+status: {}

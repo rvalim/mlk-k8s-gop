@@ -1,0 +1,20 @@
+# k create ingress iron-gallery-ingress --rule=iron-gallery-braavos.com/*=iron-gallery-service:80 --dry-run=client -oyaml > 05-iron-gallery-ingress.yaml
+
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: iron-gallery-ingress
+  annotations:                                          # add this
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    ingress.kubernetes.io/rewrite-target: /
+    kubernetes.io/ingress.class: nginx
+spec:
+  rules:
+  - host: iron-gallery-braavos.com
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: iron-gallery-service
+          servicePort: 80
+  

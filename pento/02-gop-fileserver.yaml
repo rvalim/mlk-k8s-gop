@@ -1,0 +1,19 @@
+# k run gop-fileserver --image kodekloud/fileserver --dry-run=client -oyaml > pod.yaml
+
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    run: gop-fileserver
+  name: gop-fileserver
+spec:
+  volumes:                # add this
+  - name: data-store
+    persistentVolumeClaim:
+      claimName: data-pvc
+  containers:
+  - image: kodekloud/fileserver
+    name: gop-fileserver
+    volumeMounts:         # add this
+    - mountPath: "/web"
+      name: data-store

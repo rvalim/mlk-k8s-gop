@@ -1,0 +1,38 @@
+#k create deploy drupal-mysql --image mysql:5.7 --replicas 1 --dry-run=client -oyaml > drupal-pod.yaml
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: drupal-mysql
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: drupal-mysql
+  template:
+    metadata:
+      labels:
+        name: drupal-mysql
+    spec:
+      volumes:
+      - name: drupal-mysql-pv-storage
+        persistentVolumeClaim:
+          claimName: drupal-mysql-pvc
+      initContainers:                               # this will init the path
+      - name: init-sites-volume
+        image: 'drupal:8.6'
+        volumeMounts:
+        - mountPath: "/data"
+          name: drupal-mysql-pv-storage
+        command: ["/bin/bash", "-c" ]
+        args: ["cp -r /var/www/html/sites/ /data/; chown www-data:www-data /data/ -R"]
+      containers:
+      - name: drupal-mysql
+        image: 'mysql:5.7'
+        volumeMounts:
+        - mountPath: /var/lib/mysql
+          subPath: dbdata
+          name: drupal-mysql-pv-storage
+        envFrom:                                      # add envFrom
+        - secretRef:
+            name: drupal-mysql-secret

@@ -1,0 +1,44 @@
+# k create deploy iron-db --image kodekloud/irondb:2.0 --replicas=1 \
+# --env=MYSQL_ROOT_PASSWORD=Braavo \
+# --env=MYSQL_DATABASE=lychee \
+# --env=MYSQL_USER=lychee \
+# --env=MYSQL_PASSWORD=lychee \
+# --dry-run=client -oyaml > iron-db.yaml
+
+# k label deploy iron-db db=mariadb
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: iron-db
+  labels:
+    db: mariadb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      db: mariadb
+  template:
+    metadata:
+      labels:
+        db: mariadb
+    spec:
+      volumes:
+      - name: db
+        emptyDir: {}
+      containers:
+      - name: iron-db
+        image: 'kodekloud/irondb:2.0'
+        volumeMounts:
+        - name: db
+          mountPath: /var/lib/mysql
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: "Braavo"
+        - name: MYSQL_DATABASE
+          value: "lychee"
+        - name: MYSQL_USER
+          value: "lychee"
+        - name: MYSQL_PASSWORD
+          value: "lychee"
+
